@@ -142,4 +142,4 @@ async def on_message(message):
 
 #implement pat command
 
-bot.run('ODkzODYxMDYzNjgxMDExNzQy.YVhm_A.FLcdYUQhW0sFZi7vd6JlG0g-11g')
+bot.run()
