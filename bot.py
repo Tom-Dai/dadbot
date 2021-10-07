@@ -1,4 +1,3 @@
-import os
 import discord
 import requests
 import json
@@ -26,15 +25,11 @@ conch_words = [
 ]
 
 #Lists the word in which Dad will scold you
-bad_words = [
-  'fuck',
-  'shit',
-  'cunt',
-  'ass',
-  'cock',
-  'dick'
-]
-
+with open('badwords.txt', 'r') as f:
+  bad_words = [line.strip() for line in f]
+  bad_words = set(bad_words)
+  f.close()
+  
 pronouns = [
   'im',
   'i am',
@@ -48,6 +43,10 @@ def make_joke():
   req = requests.get(url, headers=headers)
   file = req.json()
   return(file['joke'])
+
+dont_censor = ['yed']
+
+
 
 #WORK IN PROGRESS will return a GIF whenever a User
 # mentions another user with the pat command
@@ -66,6 +65,12 @@ def make_joke():
   #else:
       #gifs = None
 
+#need to make a textfile that can store a dictionary
+# name: count of bad words
+# dad bot needs to be able to read the file, and store it on a dictionary
+# Anytime someone curses, he can check the dictionary of the author of the messge
+# and see the counter tied to it. Then he can tell them how many times they have cursed.
+
 #on startup
 @bot.event
 async def on_ready():
@@ -74,8 +79,11 @@ spam_warning = False
 #whenever a message is sent
 @bot.event
 async def on_message(message):
+  msg_author = f'{message.author.name}#{message.author.discriminator}'
   if message.author == bot.user:
     return
+  #if message.author.id == 'Pupper#1652':
+    #if message.content
   #will return a dad joke when 'dad joke' is detected
   if 'dad' in message.content.lower() and 'joke' in message.content.lower():
     joke = make_joke()
@@ -95,6 +103,9 @@ async def on_message(message):
   #tells the user that a bad word has been detected 
   for badword in bad_words:
     if badword in message.content.lower():
+      for legal in dont_censor:
+        if legal in message.content:
+          return
       await message.channel.send(f'Uh oh, {message.author.mention} said a bad word!')
       return
   #This will detect whether a user wants to ask dad a question
@@ -103,6 +114,21 @@ async def on_message(message):
     msg = conch_words[random.randint(0, 14)]
     await message.channel.send(msg)
     return
+
+  #bully kazu and argo kekw
+  #done by richard
+  if(msg_author == "NJV#6329" or msg_author == "Gooby#5933"):
+    emotes = ['<:loser:845866953797009408>', '<:pepeStare:753282276871241839>', 
+    '<:SIMP:753122463365464124>', '<:WeirdChamp:753114155942150224>']
+    #every time they msg, have a 8% chance of emoting
+    roll = random.random()
+    print(roll)
+    if(roll > .93):
+      await message.channel.send(emotes[random.randint(0, len(emotes)-1)]) 
+      await message.channel.send(message.author.mention)
+    return
+    #need something to further troll kazu
+    
   #Dad will say hi to the user
   if ('hey' in message.content or 'hi' in message.content or 'hello' in message.content) and 'dad' in message.content:
     await message.channel.send(f'Hello {message.author.mention}!')
@@ -116,4 +142,4 @@ async def on_message(message):
 
 #implement pat command
 
-bot.run()
+bot.run('ODkzODYxMDYzNjgxMDExNzQy.YVhm_A.FLcdYUQhW0sFZi7vd6JlG0g-11g')
