@@ -2,6 +2,7 @@ import discord
 import requests
 import json
 import random
+import pandas as pd
 
 bot = discord.Client()
 
@@ -44,10 +45,6 @@ def make_joke():
   file = req.json()
   return(file['joke'])
 
-dont_censor = ['yed']
-
-
-
 #WORK IN PROGRESS will return a GIF whenever a User
 # mentions another user with the pat command
 #def anime_pats():
@@ -71,11 +68,17 @@ dont_censor = ['yed']
 # Anytime someone curses, he can check the dictionary of the author of the messge
 # and see the counter tied to it. Then he can tell them how many times they have cursed.
 
+
 #on startup
 @bot.event
 async def on_ready():
   print(f'{bot.user} has connected to Discord!')
-spam_warning = False
+  try: 
+    bad_word_data = json.load("data.json")
+  except FileNotFoundError:
+    print("Data file not found.")
+    bad_word_data = {} 
+
 #whenever a message is sent
 @bot.event
 async def on_message(message):
@@ -103,9 +106,11 @@ async def on_message(message):
   #tells the user that a bad word has been detected 
   for badword in bad_words:
     if badword in message.content.lower():
-      for legal in dont_censor:
-        if legal in message.content:
-          return
+      if(msg_author in bad_word_data.keys()):
+        bad_word_data[msg_author]["badWords"] += 1
+      else:
+        bad_word_data[msg_author] = 1
+
       await message.channel.send(f'Uh oh, {message.author.mention} said a bad word!')
       return
   #This will detect whether a user wants to ask dad a question
